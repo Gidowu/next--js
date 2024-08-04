@@ -9,7 +9,7 @@ import {
   query,
   getDocs
 } from 'firebase/firestore';
-import { db } from '../firebase';
+import { db } from './firebase';
 import {
   Container,
   Typography,
