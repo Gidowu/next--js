@@ -117,39 +117,29 @@ export default function Home() {
           Expense Tracker
         </Typography>
         <Paper sx={{ padding: 2, width: '100%', backgroundColor: '#fff' }}>
-          <form onSubmit={addItem}>
-            <Grid container spacing={2}>
-              <Grid item xs={8}>
-                <TextField
-                  fullWidth
-                  label="Enter Item"
-                  variant="outlined"
-                  value={newItem.name}
-                  onChange={(e) => setNewItem({ ...newItem, name: e.target.value })}
-                />
-              </Grid>
-              <Grid item xs={4}>
-                <TextField
-                  fullWidth
-                  label="Enter $"
-                  type="number"
-                  variant="outlined"
-                  value={newItem.price}
-                  onChange={(e) => setNewItem({ ...newItem, price: e.target.value })}
-                />
-              </Grid>
-              <Grid item xs={12}>
-                <Button
-                  type="submit"
-                  variant="contained"
-                  color="primary"
-                  fullWidth
-                >
-                  Add Item
-                </Button>
-              </Grid>
-            </Grid>
-          </form>
+          <Typography variant="h6" gutterBottom>
+            About This App
+          </Typography>
+          <Typography paragraph>
+            This is an Expense Tracker application that helps you keep track of your expenses. 
+            You can add items with their prices, view the total amount spent, and delete items as needed.
+          </Typography>
+          <Typography variant="h6" gutterBottom>
+            Features
+          </Typography>
+          <Typography paragraph>
+            - Add new items with their price.
+            - View a list of added items with the ability to delete them.
+            - See the total amount spent at the bottom of the list.
+          </Typography>
+          <Typography variant="h6" gutterBottom>
+            How to Use
+          </Typography>
+          <Typography paragraph>
+            To add a new item, enter the item name and its price, then click the "Add Item" button. 
+            The item will appear in the list below, and you can delete it using the trash icon. 
+            Use the "Items" tab to navigate to the list of items.
+          </Typography>
         </Paper>
       </Box>
       <Box id="items" ref={itemsRef} sx={{ padding: 2, width: '100%' }}>
