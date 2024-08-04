@@ -121,7 +121,7 @@ export default function Home() {
             About This App
           </Typography>
           <Typography paragraph>
-            This is an Expense Tracker application that helps you keep track of your expenses. 
+            This is an Expense Tracker application that helps you keep track of your expenses.
             You can add items with their prices, view the total amount spent, and delete items as needed.
           </Typography>
           <Typography variant="h6" gutterBottom>
@@ -136,8 +136,8 @@ export default function Home() {
             How to Use
           </Typography>
           <Typography paragraph>
-            To add a new item, enter the item name and its price, then click the "Add Item" button. 
-            The item will appear in the list below, and you can delete it using the trash icon. 
+            To add a new item, enter the item name and its price, then click the "Add Item" button.
+            The item will appear in the list below, and you can delete it using the trash icon.
             Use the "Items" tab to navigate to the list of items.
           </Typography>
         </Paper>
