@@ -1,95 +1,160 @@
-import Image from "next/image";
-import styles from "./page.module.css";
+'use client';
+import React, { useState, useEffect } from 'react';
+import {
+  collection,
+  addDoc,
+  onSnapshot,
+  deleteDoc,
+  doc,
+  query,
+  getDocs
+} from 'firebase/firestore';
+import { db } from './firebase'; // Ensure this path is correct
+import {
+  Container,
+  Typography,
+  TextField,
+  Button,
+  List,
+  ListItem,
+  ListItemText,
+  IconButton,
+  Paper,
+  Grid
+} from '@mui/material';
+import DeleteIcon from '@mui/icons-material/Delete';
 
 export default function Home() {
+  const [items, setItems] = useState([]);
+  const [newItem, setNewItem] = useState({ name: '', price: '' });
+  const [total, setTotal] = useState(0);
+
+  // Add item to the database
+  const addItem = async (e) => {
+    e.preventDefault();
+    if (newItem.name !== '' && newItem.price !== '') {
+      await addDoc(collection(db, 'items'), {
+        name: newItem.name.trim(),
+        price: newItem.price,
+      });
+      setNewItem({ name: '', price: '' });
+    }
+  };
+
+  // Add sample items to the database if it's empty
+  const addSampleItems = async () => {
+    const q = query(collection(db, 'items'));
+    const querySnapshot = await getDocs(q);
+    if (querySnapshot.empty) {
+      const sampleItems = [
+        { name: 'Coffee', price: '4.95' },
+        { name: 'Movie', price: '24.95' },
+        { name: 'Candy', price: '7.95' }
+      ];
+      for (const item of sampleItems) {
+        await addDoc(collection(db, 'items'), item);
+      }
+    }
+  };
+
+  // Read items from the database
+  useEffect(() => {
+    addSampleItems(); // Ensure sample items are added if the collection is empty
+
+    const q = query(collection(db, 'items'));
+    const unsubscribe = onSnapshot(q, (querySnapshot) => {
+      let itemsArr = [];
+
+      querySnapshot.forEach((doc) => {
+        itemsArr.push({ ...doc.data(), id: doc.id });
+      });
+      setItems(itemsArr);
+
+      // Read total from itemsArr
+      const calculateTotal = () => {
+        const totalPrice = itemsArr.reduce(
+          (sum, item) => sum + parseFloat(item.price),
+          0
+        );
+        setTotal(totalPrice);
+      };
+      calculateTotal();
+    });
+    return () => unsubscribe();
+  }, []);
+
+  // Delete items from the database
+  const deleteItem = async (id) => {
+    await deleteDoc(doc(db, 'items', id));
+  };
+
   return (
-    <main className={styles.main}>
-      <div className={styles.description}>
-        <p>
-          Get started by editing&nbsp;
-          <code className={styles.code}>app/page.js</code>
-        </p>
-        <div>
-          <a
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            By{" "}
-            <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className={styles.vercelLogo}
-              width={100}
-              height={24}
-              priority
-            />
-          </a>
-        </div>
-      </div>
-
-      <div className={styles.center}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
-        />
-      </div>
-
-      <div className={styles.grid}>
-        <a
-          href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Docs <span>-&gt;</span>
-          </h2>
-          <p>Find in-depth information about Next.js features and API.</p>
-        </a>
-
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Learn <span>-&gt;</span>
-          </h2>
-          <p>Learn about Next.js in an interactive course with&nbsp;quizzes!</p>
-        </a>
-
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Templates <span>-&gt;</span>
-          </h2>
-          <p>Explore starter templates for Next.js.</p>
-        </a>
-
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Deploy <span>-&gt;</span>
-          </h2>
-          <p>
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
-          </p>
-        </a>
-      </div>
-    </main>
+    <Container
+      component="main"
+      maxWidth="sm"
+      sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', minHeight: '100vh', p: 4 }}
+    >
+      <Typography variant="h4" gutterBottom align="center">
+        Expense Tracker
+      </Typography>
+      <Paper sx={{ padding: 2, width: '100%' }}>
+        <form onSubmit={addItem}>
+          <Grid container spacing={2}>
+            <Grid item xs={8}>
+              <TextField
+                fullWidth
+                label="Enter Item"
+                variant="outlined"
+                value={newItem.name}
+                onChange={(e) => setNewItem({ ...newItem, name: e.target.value })}
+              />
+            </Grid>
+            <Grid item xs={4}>
+              <TextField
+                fullWidth
+                label="Enter $"
+                type="number"
+                variant="outlined"
+                value={newItem.price}
+                onChange={(e) => setNewItem({ ...newItem, price: e.target.value })}
+              />
+            </Grid>
+            <Grid item xs={12}>
+              <Button
+                type="submit"
+                variant="contained"
+                color="primary"
+                fullWidth
+              >
+                Add Item
+              </Button>
+            </Grid>
+          </Grid>
+        </form>
+        <List>
+          {items.map((item) => (
+            <ListItem
+              key={item.id}
+              secondaryAction={
+                <IconButton edge="end" aria-label="delete" onClick={() => deleteItem(item.id)}>
+                  <DeleteIcon />
+                </IconButton>
+              }
+            >
+              <ListItemText
+                primary={item.name}
+                secondary={`$${item.price}`}
+              />
+            </ListItem>
+          ))}
+        </List>
+        {items.length > 0 && (
+          <Grid container justifyContent="space-between" sx={{ paddingTop: 2 }}>
+            <Typography variant="h6">Total</Typography>
+            <Typography variant="h6">${total.toFixed(2)}</Typography>
+          </Grid>
+        )}
+      </Paper>
+    </Container>
   );
 }
